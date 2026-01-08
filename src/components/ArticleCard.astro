@@ -1,0 +1,44 @@
+---
+interface Props {
+  title: string;
+  slug: string;
+  date: Date;
+  category?: string[];
+  excerpt?: string;
+  image?: string;
+  author?: string;
+}
+
+const { title, slug, date, category = [], excerpt, image, author = 'Sophie Lewis' } = Astro.props;
+const formattedDate = new Date(date).toLocaleDateString('en-GB', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+});
+
+// Estimate read time (roughly 200 words per minute, assuming excerpt is ~10% of content)
+const readTime = excerpt ? Math.max(3, Math.ceil((excerpt.split(' ').length * 10) / 200)) : 5;
+---
+
+<article class="article-card">
+  {image && (
+    <div class="article-card-image">
+      <img src={image} alt={title} loading="lazy" />
+    </div>
+  )}
+  <div class="article-card-content">
+    <div class="article-card-meta">
+      {category[0] && <span class="article-card-category">{category[0]}</span>}
+      <time datetime={date.toISOString()}>{formattedDate}</time>
+    </div>
+    <h3><a href={`/articles/${slug}`}>{title}</a></h3>
+    {excerpt && <p class="article-card-excerpt">{excerpt}</p>}
+    <div class="article-card-footer">
+      <div class="article-card-author">
+        <img src="/images/sophie-author.jpg" alt={author} class="article-card-author-avatar" />
+        <span class="article-card-author-name">{author}</span>
+      </div>
+      <span class="article-card-read-time">{readTime} min read</span>
+    </div>
+  </div>
+</article>

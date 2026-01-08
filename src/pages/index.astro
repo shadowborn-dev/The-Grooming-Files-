@@ -1,0 +1,377 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { getCollection } from 'astro:content';
+
+const allArticles = await getCollection('articles', ({ data }) => !data.draft);
+const sortedArticles = allArticles.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// Featured article is the most recent
+const featuredArticle = sortedArticles[0];
+// Next 6 articles for the grid
+const recentArticles = sortedArticles.slice(1, 7);
+
+// Get unique categories
+const allCategories = [...new Set(allArticles.flatMap(article => article.data.category))].slice(0, 10);
+---
+
+<BaseLayout title="Home">
+  <section class="hero">
+    <div class="container">
+      <h1 class="hero-title">The Grooming Files</h1>
+      <p class="hero-tagline">Stories They Didn't Want Told</p>
+      <p class="hero-description">Independent investigative journalism exposing child exploitation, institutional failures, and systemic abuse across Wales and the UK.</p>
+    </div>
+  </section>
+
+  {allCategories.length > 0 && (
+    <div class="container">
+      <nav class="categories-nav">
+        {allCategories.map(cat => (
+          <a href={`/category/${cat.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} class="category-tag">{cat}</a>
+        ))}
+      </nav>
+    </div>
+  )}
+
+  {featuredArticle && (
+    <section class="featured-section">
+      <div class="container">
+        <article class="featured-article">
+          {featuredArticle.data.image && (
+            <div class="featured-image">
+              <img src={featuredArticle.data.image} alt={featuredArticle.data.title} />
+            </div>
+          )}
+          <div class="featured-content">
+            <div class="featured-meta">
+              {featuredArticle.data.category[0] && (
+                <span class="featured-category">{featuredArticle.data.category[0]}</span>
+              )}
+              <span class="featured-label">Featured</span>
+            </div>
+            <h2 class="featured-title">
+              <a href={`/articles/${featuredArticle.slug}`}>{featuredArticle.data.title}</a>
+            </h2>
+            {featuredArticle.data.description && (
+              <p class="featured-excerpt">{featuredArticle.data.description}</p>
+            )}
+            <div class="featured-footer">
+              <div class="author-info">
+                <img src="/images/sophie-author.jpg" alt="Sophie Lewis" class="author-avatar" />
+                <span class="author-name">{featuredArticle.data.author}</span>
+              </div>
+              <time datetime={featuredArticle.data.pubDate.toISOString()}>
+                {featuredArticle.data.pubDate.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </time>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  )}
+
+  <section class="articles-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Latest Articles</h2>
+        <a href="/articles" class="view-all">View All</a>
+      </div>
+
+      {recentArticles.length > 0 ? (
+        <div class="articles-grid">
+          {recentArticles.map(article => (
+            <ArticleCard
+              title={article.data.title}
+              slug={article.slug}
+              date={article.data.pubDate}
+              category={article.data.category}
+              excerpt={article.data.description}
+              image={article.data.image}
+            />
+          ))}
+        </div>
+      ) : (
+        <p style="text-align: center; color: var(--color-text-muted); padding: 3rem 0;">
+          No articles yet. Run <code>npm run import</code> to import your WordPress content.
+        </p>
+      )}
+    </div>
+  </section>
+
+  <section class="about-teaser">
+    <div class="container">
+      <div class="about-teaser-content">
+        <h2>About The Grooming Files</h2>
+        <p>Founded by Sophie Lewis, a survivor-turned-journalist, The Grooming Files is dedicated to exposing the truth about child exploitation and holding institutions accountable. We give voice to survivors and shine a light on systemic failures that allow abuse to continue.</p>
+        <a href="/about" class="btn-secondary">Learn More About Our Mission</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="newsletter-section">
+    <div class="container">
+      <div class="newsletter-box">
+        <h2>Stay Informed</h2>
+        <p>Get our latest investigations and survivor stories delivered to your inbox.</p>
+        <form class="newsletter-form" action="#" method="POST">
+          <input type="email" name="email" placeholder="Enter your email" required />
+          <button type="submit">Subscribe</button>
+        </form>
+        <p class="newsletter-note">We respect your privacy. Unsubscribe at any time.</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding: 4rem 0 3rem;
+    text-align: center;
+  }
+
+  .hero-title {
+    font-family: var(--font-serif);
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+    color: var(--color-text);
+  }
+
+  .hero-tagline {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-accent);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-description {
+    font-size: 1.2rem;
+    color: var(--color-text-muted);
+    max-width: 650px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* Featured Article */
+  .featured-section {
+    padding: 2rem 0 3rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .featured-article {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+
+  .featured-image {
+    aspect-ratio: 16/10;
+    overflow: hidden;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+  }
+
+  .featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .featured-meta {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .featured-category {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-accent);
+  }
+
+  .featured-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.75rem;
+    background: var(--color-accent);
+    color: white;
+  }
+
+  .featured-title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+
+  .featured-title a {
+    color: var(--color-text);
+  }
+
+  .featured-title a:hover {
+    color: var(--color-accent);
+  }
+
+  .featured-excerpt {
+    font-size: 1.1rem;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .featured-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+
+  .author-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .author-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .author-name {
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  /* About Teaser */
+  .about-teaser {
+    padding: 4rem 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .about-teaser-content {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .about-teaser h2 {
+    font-family: var(--font-serif);
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .about-teaser p {
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-secondary {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--color-accent);
+    color: var(--color-accent);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover {
+    background: var(--color-accent);
+    color: white;
+  }
+
+  /* Newsletter */
+  .newsletter-section {
+    padding: 4rem 0;
+  }
+
+  .newsletter-box {
+    max-width: 550px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 3rem;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+  }
+
+  .newsletter-box h2 {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .newsletter-box > p {
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .newsletter-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .newsletter-form input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    font-size: 1rem;
+  }
+
+  .newsletter-form input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .newsletter-form input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+  }
+
+  .newsletter-form button {
+    padding: 0.75rem 1.5rem;
+    background: var(--color-accent);
+    border: none;
+    color: white;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .newsletter-form button:hover {
+    background: var(--color-accent-hover);
+  }
+
+  .newsletter-note {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 768px) {
+    .featured-article {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .newsletter-form {
+      flex-direction: column;
+    }
+  }
+</style>

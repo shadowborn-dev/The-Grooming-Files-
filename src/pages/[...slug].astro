@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const pages = await getCollection('pages');
+  return pages.map(page => ({
+    params: { slug: page.slug === 'home' ? undefined : page.slug },
+    props: { page },
+  }));
+}
+
+const { page } = Astro.props;
+const { Content } = await page.render();
+
+// Don't show home page here - it's handled by index.astro
+if (page.slug === 'home') {
+  return Astro.redirect('/');
+}
+---
+
+<BaseLayout title={page.data.title}>
+  <section class="article-header">
+    <div class="container content-width">
+      <h1 class="article-title">{page.data.title}</h1>
+    </div>
+  </section>
+
+  <div class="article-content">
+    <div class="container content-width">
+      <Content />
+    </div>
+  </div>
+</BaseLayout>

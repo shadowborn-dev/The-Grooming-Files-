@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getCollection } from 'astro:content';
+
+const allArticles = await getCollection('articles', ({ data }) => !data.draft);
+const sortedArticles = allArticles.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<BaseLayout title="All Articles">
+  <section class="articles-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">All Articles</h2>
+        <span style="color: var(--color-text-muted);">{sortedArticles.length} articles</span>
+      </div>
+      
+      <div class="articles-grid">
+        {sortedArticles.map(article => (
+          <ArticleCard
+            title={article.data.title}
+            slug={article.slug}
+            date={article.data.pubDate}
+            category={article.data.category}
+            excerpt={article.data.description}
+            image={article.data.image}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

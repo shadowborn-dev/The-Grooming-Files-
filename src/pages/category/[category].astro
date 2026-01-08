@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const allArticles = await getCollection('articles', ({ data }) => !data.draft);
+
+  const allCategories = [...new Set(allArticles.flatMap(article => article.data.category))];
+
+  return allCategories.map(category => {
+    const slug = category.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const filteredArticles = allArticles.filter(article =>
+      article.data.category.includes(category)
+    );
+    return {
+      params: { category: slug },
+      props: {
+        category,
+        articles: filteredArticles.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+      },
+    };
+  });
+}
+
+const { category, articles } = Astro.props;
+---
+
+<BaseLayout title={`${category} Articles`}>
+  <section class="articles-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">{category}</h2>
+        <span style="color: var(--color-text-muted);">{articles.length} articles</span>
+      </div>
+
+      <div class="articles-grid">
+        {articles.map(article => (
+          <ArticleCard
+            title={article.data.title}
+            slug={article.slug}
+            date={article.data.pubDate}
+            category={article.data.category}
+            excerpt={article.data.description}
+            image={article.data.image}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

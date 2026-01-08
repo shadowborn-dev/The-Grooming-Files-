@@ -1,0 +1,80 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Stories They Didn't Want Told - Independent investigative journalism on child protection, grooming awareness, and institutional accountability." } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content={description}>
+  <title>{title} | The Grooming Files</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="/" class="site-logo">
+          The Grooming Files
+          <div class="site-tagline">Stories They Didn't Want Told</div>
+        </a>
+        <nav class="site-nav">
+          <a href="/">Home</a>
+          <a href="/articles">Articles</a>
+          <a href="/survivor-stories-breaking-the-silence">Survivor Stories</a>
+          <a href="/the-exposure-spiral">Exposure Spiral</a>
+          <a href="/three-days-with-a-predator-the-message-that-changed-everything">Three Days</a>
+          <a href="/resources-support">Resources</a>
+          <a href="/about">About</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-main">
+          <p class="footer-copy">&copy; {new Date().getFullYear()} The Grooming Files. All rights reserved.</p>
+          <div class="footer-links">
+            <a href="/about">About</a>
+            <a href="/predator-typologies-the-full-series">Predator Series</a>
+            <a href="/the-porn-crisis-complete-series">Porn Crisis Series</a>
+            <a href="/resources-support">Resources</a>
+          </div>
+        </div>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/share/1GJE14gsuc/" target="_blank" rel="noopener noreferrer" aria-label="Sophie's Profile" title="Sophie's Profile">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+          <a href="https://www.facebook.com/share/1AkdzGgAZC/" target="_blank" rel="noopener noreferrer" aria-label="The Grooming Files" title="The Grooming Files">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+          <a href="https://www.facebook.com/share/1APYz8HdCp/" target="_blank" rel="noopener noreferrer" aria-label="Shadowborn" title="Shadowborn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+          <a href="mailto:sophie.editorial@outlook.com" aria-label="Email" title="Email">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
+
+<style is:global>
+  @import '../styles/global.css';
+</style>

@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  return articles.map(article => ({
+    params: { slug: article.slug },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content } = await article.render();
+
+const formattedDate = new Date(article.data.pubDate).toLocaleDateString('en-GB', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+});
+
+const categorySlug = article.data.category[0]
+  ? article.data.category[0].toLowerCase().replace(/[^a-z0-9]+/g, '-')
+  : null;
+---
+
+<BaseLayout title={article.data.title} description={article.data.description}>
+  <article>
+    <header class="article-header">
+      <div class="container content-width">
+        <div class="article-meta">
+          {article.data.category[0] && (
+            <a href={`/category/${categorySlug}`} class="article-category">
+              {article.data.category[0]}
+            </a>
+          )}
+          <time datetime={article.data.pubDate.toISOString()}>{formattedDate}</time>
+          <span>By {article.data.author}</span>
+        </div>
+        <h1 class="article-title">{article.data.title}</h1>
+        {article.data.description && (
+          <p class="article-excerpt">{article.data.description}</p>
+        )}
+      </div>
+    </header>
+
+    {article.data.image && (
+      <div class="container content-width" style="padding: 2rem 1.5rem 0;">
+        <img src={article.data.image} alt={article.data.title} style="width: 100%; border-radius: 4px;" />
+      </div>
+    )}
+
+    <div class="article-content">
+      <div class="container content-width">
+        <div class="content-warning">
+          <strong>Content Warning:</strong> This article may contain descriptions of child abuse, grooming, or related trauma. Reader discretion is advised.
+        </div>
+        <Content />
+      </div>
+    </div>
+  </article>
+</BaseLayout>
