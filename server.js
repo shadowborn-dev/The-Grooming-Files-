@@ -1,39 +1,36 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const distPath = path.join(__dirname, 'dist');
 
 // Serve static files from the dist directory
-app.use(express.static(path.join(__dirname, 'dist')));
+app.use(express.static(distPath));
 
-// Handle all routes by serving index.html for client-side routing
-app.get('*', (req, res) => {
-  const filePath = path.join(__dirname, 'dist', req.path);
+// Handle all other routes - Express 5 compatible
+app.use((req, res) => {
+  const urlPath = req.path === '/' ? '/index.html' : req.path;
+  const filePath = path.join(distPath, urlPath);
+  const filePathHtml = path.join(distPath, urlPath + '.html');
+  const filePathIndex = path.join(distPath, urlPath, 'index.html');
 
-  // Try to serve the exact file
-  res.sendFile(filePath, (err) => {
-    if (err) {
-      // If file doesn't exist, try with .html extension
-      res.sendFile(filePath + '.html', (err2) => {
-        if (err2) {
-          // If still not found, try index.html in that directory
-          res.sendFile(path.join(filePath, 'index.html'), (err3) => {
-            if (err3) {
-              // Finally fallback to root index.html
-              res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-            }
-          });
-        }
-      });
-    }
-  });
+  if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+    res.sendFile(filePath);
+  } else if (fs.existsSync(filePathHtml)) {
+    res.sendFile(filePathHtml);
+  } else if (fs.existsSync(filePathIndex)) {
+    res.sendFile(filePathIndex);
+  } else {
+    res.sendFile(path.join(distPath, 'index.html'));
+  }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log('Server running on port ' + PORT);
 });
